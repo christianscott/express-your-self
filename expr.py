@@ -2,16 +2,17 @@ import collections
 
 consume = lambda iterable: collections.deque(iterable, maxlen=0)
 
-func = lambda body, bound_variables: body(**bound_variables)
+func = lambda bound_variables, body: body(**bound_variables)
+λ = func
 
-where = lambda **kwargs: kwargs
+let = lambda **kwargs: kwargs
 
 last = lambda iterable: func(
+    let(
+        array=[*iterable]
+    ),
     lambda array: \
         array[len(array) - 1],
-    where(
-        array=[*iterable]
-    )
 )
 
 do = lambda *args: len(args) > 0 and last(args)
