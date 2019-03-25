@@ -31,7 +31,24 @@ do = lambda statements: len(statements) > 0 and last(statements)
 
 loop = lambda fn: consume(fn() for _ in iter(int, 1))
 
-loop_while_true = lambda fn: fn() and loop(fn)()
+klass = lambda name, attrs: type(name, (), attrs)
+
+Consumable = klass('Consumable', {
+    "__init__": lambda self, fn: setattr(self, 'fn', fn),
+    "__next__": lambda self: self.fn(),
+    "__call__": lambda self: self.fn(),
+})
+
+Box = klass('Box', {
+    '__init__': lambda self, value: setattr(self, 'value', value),
+    'get': lambda self: self.value,
+    'set': lambda self, setter: setattr(self, 'value', setter(self.value)),
+})
+
+loop_while = lambda fn: do([
+    consumable := Consumable(fn),
+    consume(iter(consumable, False)),
+])
 
 require = importlib.import_module
 

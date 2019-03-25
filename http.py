@@ -35,6 +35,12 @@ do([
 
     print(parse("""GET / HTTP/1.1\r\nAccept: *""")),
     print(parse("""GET / HTTP/1.1\nAccept: *""")),
+    print(parse("""GET / HTTP/1.1
+Host: localhost:3000
+User-Agent: HTTPie/1.0.2
+Accept-Encoding: gzip, deflate
+Accept: */*
+Connection: keep-alive""")),
 
     export(__name__, parse)
 ])
