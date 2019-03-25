@@ -5,10 +5,6 @@ do([
     threading := require('threading'),
     http := require('http'),
 
-    fprint := lambda *args: do([
-        print(*args, flush=True),
-    ]),
-
     spawn := lambda target, args: do([
         handler_thread := threading.Thread(target=target, args=args),
         setattr(handler_thread, 'daemon', True),
@@ -20,7 +16,7 @@ do([
     handle_client := lambda current_connection, client_addr: do([
         bytes_ := bytearray(),
         loop_while(lambda: do([
-            chunk := current_connection.recv(1024),
+            chunk := current_connection.recv(CHUNK_SIZE),
             bytes_.extend(chunk),
             len(chunk) == CHUNK_SIZE,
         ])),
