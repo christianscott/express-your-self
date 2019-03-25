@@ -2,13 +2,19 @@ import collections
 import sys
 import importlib
 
-if not (sys.version_info[0] >= 3 and sys.version_info[1] >= 8):
-    raise Exception("must be using at least python 3.8")
+
+throw = lambda message, constructor = Exception: (_ for _ in ()).throw(constructor(message))
+
+if_then = lambda predicate, action: predicate and action()
+
+if_then(
+    not sys.version_info[0] >= 3 and sys.version_info[1] >= 8,
+    lambda: throw("must be using at least python 3.8")
+)
 
 consume = lambda iterable: collections.deque(iterable, maxlen=0)
 
 func = lambda bound_variables, body: body(**bound_variables)
-λ = func
 
 let = lambda **kwargs: kwargs
 
