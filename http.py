@@ -52,7 +52,7 @@ do([
         headers := [] if len(message_header) == 1 else \
             [parse_header(header) for header in message_header[1:] if len(header)],
 
-        Request(method, path, headers, body),
+        Request(method, path, headers, message_body),
     ]),
 
     export(__name__, parse)
