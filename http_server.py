@@ -15,17 +15,16 @@ do([
         handler_thread.start()
     ]),
 
+    CHUNK_SIZE := 1024,
+
     handle_client := lambda current_connection, client_addr: do([
         bytes_ := bytearray(),
-        bytes_remaining := Box(8192), # 8kb
         loop_while(lambda: do([
-            chunk := current_connection.recv(bytes_remaining.get()),
-            bytes_remaining.set(lambda b: b - len(chunk)),
+            chunk := current_connection.recv(1024),
             bytes_.extend(chunk),
-            len(chunk) > 0 or bytes_remaining.get() <= 0,
+            len(chunk) == CHUNK_SIZE,
         ])),
         message := bytes_.decode('utf8'),
-        print(message),
         print(http.parse(message)),
         current_connection.send(b"HTTP/1.1 200 OK\r\n"),
     ]),
