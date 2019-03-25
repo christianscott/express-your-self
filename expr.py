@@ -1,4 +1,5 @@
 import collections
+import enum
 import sys
 import importlib
 
@@ -33,3 +34,10 @@ loop = lambda fn: consume(fn() for _ in iter(int, 1))
 loop_while_true = lambda fn: fn() and loop(fn)()
 
 require = importlib.import_module
+
+t = collections.namedtuple
+
+export = lambda module_name, value: do([
+    module := sys.modules[module_name],
+    setattr(module, value.__name__, value)
+])
