@@ -1,4 +1,8 @@
 import collections
+import sys
+
+if not (sys.version_info[0] >= 3 and sys.version_info[1] >= 8):
+    raise Exception("must be using at least python 3.8")
 
 consume = lambda iterable: collections.deque(iterable, maxlen=0)
 
@@ -15,7 +19,7 @@ last = lambda iterable: func(
         array[len(array) - 1],
 )
 
-do = lambda *args: len(args) > 0 and last(args)
+do = lambda statements: len(statements) > 0 and last(statements)
 
 loop = lambda fn: consume(fn() for _ in iter(int, 1))
 
