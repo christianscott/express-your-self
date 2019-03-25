@@ -1,5 +1,6 @@
 import collections
 import sys
+import importlib
 
 if not (sys.version_info[0] >= 3 and sys.version_info[1] >= 8):
     raise Exception("must be using at least python 3.8")
@@ -24,3 +25,5 @@ do = lambda statements: len(statements) > 0 and last(statements)
 loop = lambda fn: consume(fn() for _ in iter(int, 1))
 
 loop_while_true = lambda fn: fn() and loop(fn)()
+
+require = importlib.import_module
