@@ -3,21 +3,17 @@ from expr import *
 do([
     re := require('re'),
 
-    for_each := lambda iterable, callback: consume(
-        callback(entry) for entry in iterable
-    ),
-
     bisect := lambda iterable, predicate: do([
         front := [],
         back := [],
-        flipped := Box(False),
+        has_flipped := Box(False),
 
         for_each(iterable, lambda item: do([
             if_then(
-                not flipped.get(),
-                lambda: flipped.set(lambda _: predicate(item)),
+                not has_flipped.get(),
+                lambda: has_flipped.set(lambda _: predicate(item)),
             ),
-            (back if flipped.get() else front).append(item),
+            (back if has_flipped.get() else front).append(item),
         ])),
 
         (front, back),
@@ -36,6 +32,8 @@ do([
         'headers',
         'body',
     ]),
+
+    export(__name__, Request),
 
     parse := lambda message: do([
         lines := re.split('\r?\n', message),
