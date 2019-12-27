@@ -19,7 +19,8 @@ loop_while(lambda: do([
 assert loops.get() == 5, "loop_while calls the callback until the value is False"
 
 # for_each
-loops.set(lambda _: 0)
-for_each(range(5), lambda _:)
+total = Box(0)
+for_each(range(5), lambda next: total.set(lambda total_: total_ + next))
+assert total.get() == sum(range(5)), "for_each iterates over all values in a sequence"
 
 print("all tests passed")
