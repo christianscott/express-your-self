@@ -10,12 +10,18 @@ do([
         handler_thread.start()
     ]),
 
+    ends_with_newline := lambda bytes_: \
+        len(bytes_) > 0 and bytes_[len(bytes_) - 1] == ord('\n'),
 
-    handle_client := lambda current_connection, client_addr: \
-        loop(lambda: do([
-            # TODO: read until newline
-            current_connection.send(current_connection.recv(1024))
+    handle_client := lambda current_connection, client_addr: do([
+        print(f"client connected at {client_addr}"),
+        loop_while(lambda: do([
+            recvd_bytes := current_connection.recv(1024),
+            current_connection.send(recvd_bytes),
+
+            not ends_with_newline(recvd_bytes),
         ])),
+    ]),
 
 
     listen := lambda host, port: do([
