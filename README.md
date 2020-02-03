@@ -28,6 +28,7 @@ do([
 
     handle_client := lambda current_connection, client_addr: do([
         print(f"client connected at {client_addr}"),
+        # loop_while calls the provided lambda over and over, until the final expression is falsy
         loop_while(lambda: do([
             recvd_bytes := current_connection.recv(1024),
             current_connection.send(recvd_bytes),
@@ -57,6 +58,19 @@ do([
     listen("localhost", 3000)
 ])
 
+```
+
+The code in `http.py` and `http_server.py` is much more interesting. Cool things not included in this snippet:
+
+- `t` is a way to get "data classes". You give it a name and a list of properties, as follows: `Pair := t('Pair', ['one', 'two'])`
+- `Box` is to get around the fact that we don't have mutable bindings. Instead of the binding being mutable, just stick it in a container!
+- `klass`, for when a data class isn't enough. Used to define `Box`:
+```python
+Box = klass('Box', {
+    '__init__': lambda self, value: setattr(self, 'value', value),
+    'get': lambda self: self.value,
+    'set': lambda self, setter: setattr(self, 'value', setter(self.value)),
+})
 ```
 
 ## improvements
