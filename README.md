@@ -4,31 +4,61 @@ Python, with no statements!
 
 Inside `expr.py` you'll find some utility functions and classes that let you write programs without any statements (barring a single import at the top of the file...).
 
-I've also written a (sort-of working) [TCP server](https://github.com/christianscott/express-your-self/blob/master/tcp_server.py) and an [HTTP server](https://github.com/christianscott/express-your-self/blob/master/http_server.py).
+I've written a (sort-of working) [TCP server](https://github.com/christianscott/express-your-self/blob/master/tcp_server.py) and an [HTTP server](https://github.com/christianscott/express-your-self/blob/master/http_server.py).
 
-Here's an example of the code you might write. This function tells you whether or not the supplied number is prime. Looks a little like lisp to me.
+Here's an example of the code you might write. This starts a mutli-threaded TCP server that simply echos whatever you send it. Try it out using `netcat`. (warning: it's a little broken)
 
 ```python
-from expr import * # the last statement you'll ever need
+from expr import *
 
-# `do` lets you sequence your "statements"
+# `do` lets use sequence "statements"
 do([
-    # we use/abuse the walrus operator to get variables
-    math := require('math'),
+    # "walrus operator" gives us variables (python 3.8+)
+    socket := require('socket'),
+    threading := require('threading'),
 
-    is_prime := lambda n: do([
-        False if n <= 1 else \
-        True  if n <= 3 else \
-        False if n % 2 == 0 else \
-        do([
-            possible_divisors := range(3, math.floor(n / 2) + 1),
-            has_divisors := any(n % m == 0 for m in possible_divisors),
-            not has_divisors
-        ])
+    spawn := lambda target, args: do([
+        handler_thread := threading.Thread(target=target, args=args),
+        setattr(handler_thread, 'daemon', True),
+        handler_thread.start()
     ]),
 
-    consume(
-        print(f"{i}: {is_prime(i)}") for i in range(30)
-    )
+    ends_with_newline := lambda bytes_: \
+        len(bytes_) > 0 and bytes_[len(bytes_) - 1] == ord('\n'),
+
+    handle_client := lambda current_connection, client_addr: do([
+        print(f"client connected at {client_addr}"),
+        loop_while(lambda: do([
+            recvd_bytes := current_connection.recv(1024),
+            current_connection.send(recvd_bytes),
+
+            not ends_with_newline(recvd_bytes),
+        ])),
+    ]),
+
+
+    listen := lambda host, port: do([
+        connection := socket.socket(socket.AF_INET, socket.SOCK_STREAM),
+        connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1),
+        connection.bind((host, port)),
+
+        # Listen for clients (max 10 clients in waiting)
+        connection.listen(10),
+
+        print(f"server listening on {host}:{port}"),
+
+        loop(lambda: do([
+            client_connection := connection.accept(),
+            spawn(target=handle_client, args=client_connection),
+        ]))
+    ]),
+
+
+    listen("localhost", 3000)
 ])
+
 ```
+
+## improvements
+
+- [ ] Exceptions! There's no way to catch exceptions at the moment. It would be easy to write a helper function using `try/catch` statements, but that's cheating.
